@@ -1,0 +1,3 @@
+http://google.com
+http://yahoo.fr
+http://free.fr
