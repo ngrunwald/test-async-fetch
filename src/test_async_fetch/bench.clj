@@ -27,17 +27,22 @@
 
 (defn test-pmap
   [urls]
-   (pmap fetch-with-apache urls))
+  (doall
+   (pmap fetch-with-apache urls)))
 
 (defn test-async
   [urls]
-   (a/with-client {:follow-redirects true}
-     (let [arr (map #(a/GET %) urls)]
-       (for [res arr]
-         (do
-           (a/await res)
-           (:code (a/status res)))))))
+  (with-open [client (a/create-client :follow-redirects true)]
+    (let [arr (doall (map a/GET urls))]
+      (doall (for [res arr]
+               (:code (a/status (a/await res))))))))
 
 (defn -main
   [file]
-  (test-pmap (get-urls file)))
+  (let [urls (get-urls file)]
+    (println "apache")
+    (time
+     (println (test-pmap urls)))
+    (println "async")
+    (time
+     (println (test-async urls)))))
